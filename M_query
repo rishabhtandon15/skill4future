@@ -1,0 +1,28 @@
+let
+    Source = Excel.Workbook(File.Contents("C:\Path\To\Your\File.xlsx"), null, true),
+    Data_Sheet = Source{[Item="Sheet1",Kind="Sheet"]}[Data],
+    PromotedHeaders = Table.PromoteHeaders(Data_Sheet, [PromoteAllScalars=true]),
+    ChangedTypes = Table.TransformColumnTypes(PromotedHeaders, {
+        {"State", type text},
+        {"Crop", type text},
+        {"Crop Yield (kg/ha)", type number},
+        {"Total Production (tonnes)", type number},
+        {"Land Area (ha)", type number},
+        {"Irrigation Coverage (%)", type number},
+        {"Fertilizer Consumption (kg/ha)", type number},
+        {"Pesticide Use (kg/ha)", type number},
+        {"Mechanization Level (%)", type number},
+        {"Rainfall (mm)", type number}
+    }),
+    GroupedByState = Table.Group(ChangedTypes, {"State"}, {
+        {"Average Crop Yield", each List.Average([Crop Yield (kg/ha)]), type number},
+        {"Total Production", each List.Sum([Total Production (tonnes)]), type number},
+        {"Total Land Area", each List.Sum([Land Area (ha)]), type number},
+        {"Avg Irrigation Coverage", each List.Average([Irrigation Coverage (%)]) , type number},
+        {"Avg Fertilizer Consumption", each List.Average([Fertilizer Consumption (kg/ha)]), type number},
+        {"Avg Pesticide Use", each List.Average([Pesticide Use (kg/ha)]) , type number},
+        {"Avg Mechanization Level", each List.Average([Mechanization Level (%)]) , type number},
+        {"Avg Rainfall", each List.Average([Rainfall (mm)]) , type number}
+    })
+in
+    GroupedByState
